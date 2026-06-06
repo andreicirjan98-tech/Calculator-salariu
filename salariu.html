@@ -287,14 +287,17 @@ header p { color: var(--text-muted); font-size: 0.9rem; margin-top: 4px; }
       <div class="form-group">
         <label>Zile concediu medical</label>
         <input type="number" id="zile-medical" value="0" min="0" step="1">
-        <span class="hint">Se scad automat din orele de regie. Indemnizația se calculează din media de mai jos.</span>
+        <span class="hint">Se scad automat din orele de regie.</span>
       </div>
       <div class="form-group">
         <label>Tip concediu medical</label>
         <select id="tip-medical">
-          <option value="75">Normal (75%)</option>
-          <option value="100">Special — 100% (tuberculoză, cancer, HIV, etc.)</option>
+          <option value="55">1-7 zile (55%)</option>
+          <option value="65">8-14 zile (65%)</option>
+          <option value="75" selected>≥ 15 zile (75%)</option>
+          <option value="100">Special 100% (tuberculoză, cancer, HIV, urgențe chirurgicale)</option>
         </select>
+        <span class="hint">Conform OUG 158/2005. La click pe „Calculează" se sugerează procentajul în funcție de zile.</span>
       </div>
       <div class="form-group">
         <label>Medie salarială brută ultimele 6 luni <small>(lei)</small></label>
@@ -399,7 +402,12 @@ function calculeaza() {
   const oreCO = getVal('ore-co');
   const oreZiLibera = getVal('ore-zi-libera');
   const zileMedical = getVal('zile-medical');
-  const tipMedical = parseInt($('tip-medical').value) || 75;
+  let tipMedical = parseInt($('tip-medical').value) || 75;
+  if (zileMedical > 0 && tipMedical !== 100) {
+    const sugerat = zileMedical <= 7 ? 55 : zileMedical <= 14 ? 65 : 75;
+    $('tip-medical').value = sugerat;
+    tipMedical = sugerat;
+  }
   const medie6Luni = getVal('medie-6-luni');
   const bonus = getVal('bonus');
 
@@ -452,7 +460,7 @@ function calculeaza() {
   $('r-spor-sarbatori').textContent = (sporSarbatori > 0 ? '+ ' : '') + formatMoney(sporSarbatori);
   $('r-absente').textContent = (absente > 0 ? '− ' : '') + formatMoney(absente);
   $('r-bonus-val').textContent = (bonus > 0 ? '+ ' : '') + formatMoney(bonus);
-  $('r-medical-val').textContent = (medicalBrut > 0 ? '+ ' : '') + formatMoney(medicalBrut);
+  $('r-medical-val').textContent = (medicalBrut > 0 ? '+ ' : '') + formatMoney(medicalBrut) + (medicalBrut > 0 ? ' (la ' + tipMedical + '%)' : '');
   $('r-total-brut').textContent = formatMoney(totalBrut);
   $('r-cas').textContent = formatMoney(cas);
   $('r-cass').textContent = formatMoney(cass);
