@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Calculator Salariu</title>
+<style>
+:root {
+  --primary: #1e3a5f;
+  --primary-light: #2563eb;
+  --success: #16a34a;
+  --danger: #dc2626;
+  --bg: #f1f5f9;
+  --card: #ffffff;
+  --text: #1e293b;
+  --text-muted: #64748b;
+  --border: #e2e8f0;
+  --radius: 12px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  padding: 20px;
+}
+.container { max-width: 840px; margin: 0 auto; }
+header {
+  text-align: center;
+  padding: 24px 0 20px;
+  border-bottom: 3px solid var(--primary);
+  margin-bottom: 28px;
+}
+header h1 { font-size: 1.75rem; color: var(--primary); letter-spacing: -0.5px; }
+header p { color: var(--text-muted); font-size: 0.9rem; margin-top: 4px; }
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.08);
+}
+.card h2 {
+  font-size: 1.1rem;
+  color: var(--primary);
+  margin-bottom: 18px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.card h2::before {
+  content: '';
+  display: inline-block;
+  width: 4px;
+  height: 20px;
+  background: var(--primary-light);
+  border-radius: 2px;
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px 24px;
+}
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-group label {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.form-group label small {
+  font-weight: 400;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+.form-group input,
+.form-group select {
+  padding: 10px 12px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: border-color .2s, box-shadow .2s;
+  background: #fff;
+  font-family: inherit;
+  width: 100%;
+}
+.form-group input:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+}
+.hint { font-size: 0.75rem; color: var(--text-muted); }
+.actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 10px 0 20px;
+}
+.btn {
+  padding: 11px 28px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity .2s, transform .1s;
+  font-family: inherit;
+}
+.btn:hover { opacity: .88; }
+.btn:active { transform: scale(.97); }
+.btn-primary { background: var(--primary-light); color: #fff; }
+.btn-success { background: var(--success); color: #fff; }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
+.btn-sm { padding: 7px 14px; font-size: .8rem; }
+.results { display: none; }
+.results.show { display: block; }
+.result-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.result-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: var(--bg);
+}
+.result-item .label { font-size: .85rem; color: var(--text-muted); }
+.result-item .value { font-weight: 700; font-size: 1rem; }
+.result-item.highlight {
+  background: var(--primary);
+  color: #fff;
+  grid-column: 1 / -1;
+}
+.result-item.highlight .label { color: rgba(255,255,255,.7); }
+.result-item.highlight .value { font-size: 1.3rem; }
+.result-item.sub .label { font-size: .78rem; padding-left: 12px; }
+.result-item.sub .value { font-size: .9rem; }
+.result-item.negative .value { color: var(--danger); }
+.result-item.positive .value { color: var(--success); }
+.result-divider {
+  grid-column: 1 / -1;
+  border: none;
+  border-top: 2px dashed var(--border);
+  margin: 6px 0;
+}
+.istoric-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.istoric-tabel-wrapper { overflow-x: auto; }
+.istoric-tabel {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: .82rem;
+}
+.istoric-tabel th {
+  background: var(--primary);
+  color: #fff;
+  padding: 10px 8px;
+  text-align: left;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.istoric-tabel td {
+  padding: 9px 8px;
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+.istoric-tabel tr:hover td { background: #f8fafc; }
+.istoric-tabel .actions-cell { display: flex; gap: 4px; }
+.empty-state {
+  text-align: center;
+  padding: 30px;
+  color: var(--text-muted);
+  font-size: .9rem;
+}
+@media (max-width: 600px) {
+  body { padding: 12px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .result-grid { grid-template-columns: 1fr; }
+  .result-item.highlight { grid-column: 1; }
+  .result-divider { grid-column: 1; }
+  header h1 { font-size: 1.3rem; }
+  .card { padding: 16px; }
+  .btn { width: 100%; }
+  .actions { flex-direction: column; }
+  .istoric-header { flex-direction: column; align-items: stretch; }
+}
+@media print {
+  .no-print { display: none !important; }
+  body { padding: 0.2in; background: #fff; font-size: 11pt; }
+  .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
+  .result-item.highlight { background: #1e3a5f !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .istoric-tabel th { background: #1e3a5f !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>Calculator Salariu</h1>
+    <p>Simulare venit brut &amp; net — conform fluturașului de salariu</p>
+  </header>
+
+  <div class="card no-print">
+    <h2>Date de bază</h2>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Salariu brut contractual <small>(lei/lună)</small></label>
+        <input type="number" id="brut-contractual" value="0" min="0" step="100">
+        <span class="hint">Salariul din contractul individual de muncă</span>
+      </div>
+      <div class="form-group">
+        <label>Salariu minim pe economie <small>(lei)</small></label>
+        <input type="number" id="salariu-minim" value="0" min="0" step="100">
+        <span class="hint">Folosit pentru calculul deducerii personale</span>
+      </div>
+      <div class="form-group">
+        <label>Zile lucrătoare totale în lună <small>(luni-vineri)</small></label>
+        <input type="number" id="zile-lucratoare" value="0" min="0" max="31">
+      </div>
+      <div class="form-group">
+        <label>Sărbători legale în această lună</label>
+        <input type="number" id="sarbatori-legale" value="0" min="0" max="10">
+        <span class="hint">Se scad automat din zilele lucrătoare (ex: 1-2 Mai, Vinerea Mare, Paște, etc.)</span>
+      </div>
+      <div class="form-group">
+        <label>Ore pe zi</label>
+        <input type="number" id="ore-pe-zi" value="0" min="0" max="24" step="0.5">
+      </div>
+      <div class="form-group">
+        <label>Persoane în întreținere</label>
+        <select id="persoane-intretinere">
+          <option value="0">0</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4+</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card no-print">
+    <h2>Ore &amp; Sporuri (adaosuri peste salariul contractual)</h2>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Ore weekend <small>(+10%)</small></label>
+        <input type="number" id="ore-weekend" value="0" min="0" step="1">
+      </div>
+      <div class="form-group">
+        <label>Ore de noapte <small>(+25%)</small></label>
+        <input type="number" id="ore-noapte" value="0" min="0" step="1">
+      </div>
+      <div class="form-group">
+        <label>Ore sărbători legale <small>(×2)</small></label>
+        <input type="number" id="ore-sarbatori" value="0" min="0" step="1">
+      </div>
+      <div class="form-group">
+        <label>Ore nemotivate <small>(neplătite — se scad)</small></label>
+        <input type="number" id="ore-nemotivate" value="0" min="0" step="1">
+      </div>
+      <div class="form-group">
+        <label>Ore concediu de odihnă (CO)</label>
+        <input type="number" id="ore-co" value="0" min="0" step="1">
+      </div>
+      <div class="form-group">
+        <label>Ore libere plătite / zi liberă</label>
+        <input type="number" id="ore-zi-libera" value="0" min="0" step="1">
+      </div>
+      <div class="form-group">
+        <label>Zile concediu medical</label>
+        <input type="number" id="zile-medical" value="0" min="0" step="1">
+        <span class="hint">Se scad automat din orele de regie. Indemnizația se calculează din media de mai jos.</span>
+      </div>
+      <div class="form-group">
+        <label>Tip concediu medical</label>
+        <select id="tip-medical">
+          <option value="75">Normal (75%)</option>
+          <option value="100">Special — 100% (tuberculoză, cancer, HIV, etc.)</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Medie salarială brută ultimele 6 luni <small>(lei)</small></label>
+        <input type="number" id="medie-6-luni" value="0" min="0" step="100">
+        <span class="hint">Indemnizația = medie6Luni ÷ 30 × zileCM × procentaj. După fluturaș, ajustezi manual medie6Luni pentru potrivire exactă.</span>
+      </div>
+      <div class="form-group">
+        <label>Bonus de performanță / primă <small>(lei)</small></label>
+        <input type="number" id="bonus" value="0" min="0" step="100">
+      </div>
+    </div>
+  </div>
+
+  <div class="actions no-print">
+    <button class="btn btn-primary" onclick="calculeaza()">Calculează</button>
+    <button class="btn btn-success" onclick="salveazaIstoric()">Salvează în istoric</button>
+    <button class="btn btn-outline" onclick="reseteaza()">Resetează</button>
+  </div>
+
+  <div class="card" id="rezultate-card">
+    <h2>Rezultate</h2>
+    <div id="rezultate" class="results show">
+      <div class="result-grid" id="rezultate-container">
+        <div class="result-item"><span class="label">Tarif orar</span><span class="value" id="r-tarif-orar">—</span></div>
+        <div class="result-item sub"><span class="label">Zile efective de calcul</span><span class="value" id="r-zile-efective">—</span></div>
+        <hr class="result-divider">
+        <div class="result-item sub"><span class="label">Ore regie</span><span class="value" id="r-ore-regie">—</span></div>
+        <div class="result-item sub"><span class="label">Concediu de odihnă (CO)</span><span class="value" id="r-co-val">—</span></div>
+        <div class="result-item sub"><span class="label">Zi liberă plătită</span><span class="value" id="r-zi-libera-val">—</span></div>
+        <div class="result-item sub"><span class="label">Spor weekend (+10%)</span><span class="value" id="r-spor-weekend">—</span></div>
+        <div class="result-item sub"><span class="label">Spor noapte (+25%)</span><span class="value" id="r-spor-noapte">—</span></div>
+        <div class="result-item sub"><span class="label">Spor sărbători legale (×2)</span><span class="value" id="r-spor-sarbatori">—</span></div>
+        <div class="result-item sub negative"><span class="label">Absențe nemotivate</span><span class="value" id="r-absente">—</span></div>
+        <div class="result-item sub"><span class="label">Bonus / primă</span><span class="value" id="r-bonus-val">—</span></div>
+        <div class="result-item sub"><span class="label">Indemnizație concediu medical</span><span class="value" id="r-medical-val">—</span></div>
+        <div class="result-item highlight"><span class="label">Venit Brut Total</span><span class="value" id="r-total-brut">—</span></div>
+        <hr class="result-divider">
+        <div class="result-item negative"><span class="label">CAS (25%)</span><span class="value" id="r-cas">—</span></div>
+        <div class="result-item negative"><span class="label">CASS (10%)</span><span class="value" id="r-cass">—</span></div>
+        <div class="result-item"><span class="label">Deducere personală</span><span class="value" id="r-deducere">—</span></div>
+        <div class="result-item"><span class="label">Baza impozabilă</span><span class="value" id="r-baza">—</span></div>
+        <div class="result-item negative"><span class="label">Impozit pe venit (10%)</span><span class="value" id="r-impozit">—</span></div>
+        <hr class="result-divider">
+        <div class="result-item highlight"><span class="label">Venit NET</span><span class="value" id="r-net">—</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" id="istoric-card">
+    <div class="istoric-header">
+      <h2>Istoric calcule</h2>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="btn btn-sm btn-outline no-print" onclick="exportCSV()">Export CSV</button>
+        <button class="btn btn-sm btn-outline no-print" onclick="window.print()">Print / PDF</button>
+        <button class="btn btn-sm btn-danger no-print" onclick="stergeTotIstoric()">Șterge tot</button>
+      </div>
+    </div>
+    <div id="istoric-container">
+      <div class="empty-state">Nu ai încă niciun calcul salvat.</div>
+    </div>
+  </div>
+
+  <footer style="text-align:center;padding:20px 0;color:var(--text-muted);font-size:0.8rem;">
+    Calculator Salariu — conform legislației în vigoare. Rezultatele sunt estimative.
+  </footer>
+</div>
+
+<script>
+function $(id) { return document.getElementById(id); }
+function getVal(id) { return parseFloat($(id).value) || 0; }
+
+function formatMoney(v) {
+  return v.toLocaleString('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' lei';
+}
+
+function calcCOrateDinIstoric() {
+  const istoric = JSON.parse(localStorage.getItem('salariu_istoric') || '[]');
+  if (istoric.length < 3) return 0;
+  let totalBrut = 0, totalOre = 0;
+  for (let i = 0; i < 3; i++) {
+    const d = istoric[i];
+    const zE = Math.max(1, d.zileLucratoare - (d.sarbatoriLegale || 0));
+    totalBrut += d.totalBrut || 0;
+    totalOre += zE * (d.orePeZi || 8);
+  }
+  return totalOre > 0 ? totalBrut / totalOre : 0;
+}
+
+function calculeaza() {
+  const brutContractual = getVal('brut-contractual');
+  const salMin = getVal('salariu-minim');
+  const zileLucratoare = getVal('zile-lucratoare');
+  const sarbatoriLegale = getVal('sarbatori-legale');
+  const zileEfective = Math.max(1, zileLucratoare - sarbatoriLegale);
+  const orePeZi = getVal('ore-pe-zi');
+  const persoaneIntretinere = parseInt($('persoane-intretinere').value) || 0;
+
+  const oreWeekend = getVal('ore-weekend');
+  const oreNoapte = getVal('ore-noapte');
+  const oreSarbatori = getVal('ore-sarbatori');
+  const oreNemotivate = getVal('ore-nemotivate');
+  const oreCO = getVal('ore-co');
+  const oreZiLibera = getVal('ore-zi-libera');
+  const zileMedical = getVal('zile-medical');
+  const tipMedical = parseInt($('tip-medical').value) || 75;
+  const medie6Luni = getVal('medie-6-luni');
+  const bonus = getVal('bonus');
+
+  const tarifOrar = zileEfective * orePeZi > 0
+    ? brutContractual / (zileEfective * orePeZi)
+    : 0;
+
+  const oreRegie = Math.max(0, zileEfective * orePeZi - oreCO - zileMedical * orePeZi - oreZiLibera - oreNemotivate);
+
+  const regiePay = oreRegie * tarifOrar;
+  const tarifCO = calcCOrateDinIstoric() || tarifOrar;
+  const COpay = oreCO * tarifCO;
+  const ziLiberaPay = oreZiLibera * tarifOrar;
+  const sporWeekend = oreWeekend * tarifOrar * 0.1;
+  const sporNoapte = oreNoapte * tarifOrar * 0.25;
+  const sporSarbatori = oreSarbatori * tarifOrar * 1.0;
+  const absente = oreNemotivate * tarifOrar;
+
+  const bazaZilnica = medie6Luni > 0 ? medie6Luni / 30 : 0;
+  const medicalBrut = bazaZilnica * zileMedical * (tipMedical / 100);
+
+  const regularBrut = regiePay + COpay + ziLiberaPay + sporWeekend + sporNoapte + sporSarbatori + bonus;
+  const totalBrut = regularBrut + medicalBrut;
+
+  const cas = Math.max(0, totalBrut * 0.25);
+  const cass = Math.max(0, totalBrut * 0.10);
+
+  const deducereBaza = 510;
+  const adaosPersoana = 204;
+  const deducereMax = deducereBaza + Math.min(persoaneIntretinere, 4) * adaosPersoana;
+  let deducere = 0;
+  if (totalBrut > 0 && totalBrut <= salMin) {
+    deducere = deducereMax;
+  } else if (totalBrut < 2 * salMin) {
+    deducere = deducereMax * (1 - (totalBrut - salMin) / salMin);
+  }
+  deducere = Math.max(0, deducere);
+
+  const bazaImpozabila = Math.max(0, totalBrut - cas - cass - deducere);
+  const impozit = bazaImpozabila * 0.10;
+  const net = totalBrut - cas - cass - impozit;
+
+  $('r-tarif-orar').textContent = formatMoney(tarifOrar) + (tarifCO !== tarifOrar ? ' (CO: ' + formatMoney(tarifCO) + ')' : '');
+  $('r-zile-efective').textContent = zileEfective + ' zile × ' + orePeZi + 'h = ' + (zileEfective * orePeZi) + 'h';
+  $('r-ore-regie').textContent = oreRegie + 'h × ' + formatMoney(tarifOrar) + ' = ' + formatMoney(regiePay);
+  $('r-co-val').textContent = (oreCO > 0 ? oreCO + 'h × ' + formatMoney(tarifCO) + ' = ' : '') + (oreCO > 0 ? formatMoney(COpay) : '—');
+  $('r-zi-libera-val').textContent = (oreZiLibera > 0 ? oreZiLibera + 'h × ' + formatMoney(tarifOrar) + ' = ' : '') + (oreZiLibera > 0 ? formatMoney(ziLiberaPay) : '—');
+  $('r-spor-weekend').textContent = (sporWeekend > 0 ? '+ ' : '') + formatMoney(sporWeekend);
+  $('r-spor-noapte').textContent = (sporNoapte > 0 ? '+ ' : '') + formatMoney(sporNoapte);
+  $('r-spor-sarbatori').textContent = (sporSarbatori > 0 ? '+ ' : '') + formatMoney(sporSarbatori);
+  $('r-absente').textContent = (absente > 0 ? '− ' : '') + formatMoney(absente);
+  $('r-bonus-val').textContent = (bonus > 0 ? '+ ' : '') + formatMoney(bonus);
+  $('r-medical-val').textContent = (medicalBrut > 0 ? '+ ' : '') + formatMoney(medicalBrut);
+  $('r-total-brut').textContent = formatMoney(totalBrut);
+  $('r-cas').textContent = formatMoney(cas);
+  $('r-cass').textContent = formatMoney(cass);
+  $('r-deducere').textContent = formatMoney(deducere);
+  $('r-baza').textContent = formatMoney(bazaImpozabila);
+  $('r-impozit').textContent = formatMoney(impozit);
+  $('r-net').textContent = formatMoney(net);
+
+  $('rezultate').classList.add('show');
+  $('rezultate-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  return {
+    timestamp: new Date().toLocaleString('ro-RO'),
+    brutContractual, salMin, zileLucratoare, sarbatoriLegale, orePeZi, persoaneIntretinere,
+    oreWeekend, oreNoapte, oreSarbatori, oreNemotivate, oreCO, oreZiLibera, zileMedical, tipMedical, medie6Luni, medicalBrut, bonus,
+    tarifOrar, tarifCO, oreRegie, regiePay, COpay, ziLiberaPay, sporWeekend, sporNoapte, sporSarbatori, absente,
+    regularBrut, totalBrut, cas, cass, deducere, bazaImpozabila, impozit, net
+  };
+}
+
+function salveazaIstoric() {
+  const data = calculeaza();
+  const istoric = JSON.parse(localStorage.getItem('salariu_istoric') || '[]');
+  istoric.unshift(data);
+  if (istoric.length > 100) istoric.pop();
+  localStorage.setItem('salariu_istoric', JSON.stringify(istoric));
+  randareIstoric();
+}
+
+function stergeDinIstoric(index) {
+  const istoric = JSON.parse(localStorage.getItem('salariu_istoric') || '[]');
+  istoric.splice(index, 1);
+  localStorage.setItem('salariu_istoric', JSON.stringify(istoric));
+  randareIstoric();
+}
+
+function stergeTotIstoric() {
+  if (!confirm('Ești sigur că vrei să ștergi tot istoricul?')) return;
+  localStorage.removeItem('salariu_istoric');
+  randareIstoric();
+}
+
+function randareIstoric() {
+  const container = $('istoric-container');
+  const istoric = JSON.parse(localStorage.getItem('salariu_istoric') || '[]');
+  if (istoric.length === 0) {
+    container.innerHTML = '<div class="empty-state">Nu ai încă niciun calcul salvat.</div>';
+    return;
+  }
+  let html = '<div class="istoric-tabel-wrapper"><table class="istoric-tabel"><thead><tr>' +
+    '<th>Data</th><th>Brut contractual</th><th>Brut total</th><th>Net</th><th class="no-print">Acțiuni</th>' +
+    '</tr></thead><tbody>';
+  istoric.forEach((d, i) => {
+    html += '<tr>' +
+      `<td>${d.timestamp}</td>` +
+      `<td>${formatMoney(d.brutContractual)}</td>` +
+      `<td>${formatMoney(d.totalBrut)}</td>` +
+      `<td><strong>${formatMoney(d.net)}</strong></td>` +
+      '<td class="actions-cell no-print">' +
+      `<button class="btn btn-sm btn-outline" onclick="veziDetalii(${i})">Detalii</button>` +
+      `<button class="btn btn-sm btn-danger" onclick="stergeDinIstoric(${i})">Șterge</button>` +
+      '</td></tr>';
+  });
+  html += '</tbody></table></div>';
+  container.innerHTML = html;
+}
+
+function veziDetalii(index) {
+  const istoric = JSON.parse(localStorage.getItem('salariu_istoric') || '[]');
+  const d = istoric[index];
+  if (!d) return;
+  $('brut-contractual').value = d.brutContractual;
+  $('salariu-minim').value = d.salMin;
+  $('zile-lucratoare').value = d.zileLucratoare;
+  $('sarbatori-legale').value = d.sarbatoriLegale != null ? d.sarbatoriLegale : 0;
+  $('ore-pe-zi').value = d.orePeZi;
+  $('persoane-intretinere').value = d.persoaneIntretinere;
+  $('ore-weekend').value = d.oreWeekend;
+  $('ore-noapte').value = d.oreNoapte;
+  $('ore-sarbatori').value = d.oreSarbatori;
+  $('ore-nemotivate').value = d.oreNemotivate;
+  $('ore-co').value = d.oreCO || 0;
+  $('ore-zi-libera').value = d.oreZiLibera || 0;
+  $('zile-medical').value = d.zileMedical || 0;
+  $('tip-medical').value = d.tipMedical || 75;
+  $('medie-6-luni').value = d.medie6Luni || 0;
+  $('bonus').value = d.bonus;
+  calculeaza();
+  $('rezultate-card').scrollIntoView({ behavior: 'smooth' });
+}
+
+function exportCSV() {
+  const istoric = JSON.parse(localStorage.getItem('salariu_istoric') || '[]');
+  if (istoric.length === 0) { alert('Nu există date de exportat.'); return; }
+  const header = 'Dată;Brut contractual;Sal.Min;Zile;Sărb.legale;Zile efective;Ore/Zi;Pers.Într.;Ore W/E;Ore Noapte;Ore Sărb.;Ore Nemot.;Ore CO;Ore zi liberă;Zile Med.;Tip CM;Medie 6 luni;Indemnizație CM;Bonus;Regie pay;CO pay;Zi lib. pay;Spor W/E;Spor Noapte;Spor Sărb.;Absențe;Regular Brut;Total Brut;CAS;CASS;Deducere;Baza Imp.;Impozit;Net';
+  const rows = istoric.map(d =>
+    `${d.timestamp};${d.brutContractual};${d.salMin};${d.zileLucratoare};${(d.sarbatoriLegale||0)};${Math.max(1,d.zileLucratoare-(d.sarbatoriLegale||0))};${d.orePeZi};${d.persoaneIntretinere};${d.oreWeekend};${d.oreNoapte};${d.oreSarbatori};${d.oreNemotivate};${(d.oreCO||0)};${(d.oreZiLibera||0)};${(d.zileMedical||0)};${(d.tipMedical||75)};${(d.medie6Luni||0).toFixed(2)};${(d.medicalBrut||0).toFixed(2)};${d.bonus};${(d.regiePay||0).toFixed(2)};${(d.COpay||0).toFixed(2)};${(d.ziLiberaPay||0).toFixed(2)};${(d.sporWeekend||0).toFixed(2)};${(d.sporNoapte||0).toFixed(2)};${(d.sporSarbatori||0).toFixed(2)};${(d.absente||0).toFixed(2)};${(d.regularBrut||0).toFixed(2)};${d.totalBrut.toFixed(2)};${d.cas.toFixed(2)};${d.cass.toFixed(2)};${d.deducere.toFixed(2)};${d.bazaImpozabila.toFixed(2)};${d.impozit.toFixed(2)};${d.net.toFixed(2)}`
+  );
+  const csv = '\uFEFF' + header + '\n' + rows.join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'salariu_istoric.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function reseteaza() {
+  if (!confirm('Resetezi toate câmpurile la valorile implicite?')) return;
+  $('brut-contractual').value = 0;
+  $('salariu-minim').value = 0;
+  $('zile-lucratoare').value = 0;
+  $('sarbatori-legale').value = 0;
+  $('ore-pe-zi').value = 0;
+  $('persoane-intretinere').value = 0;
+  $('ore-weekend').value = 0;
+  $('ore-noapte').value = 0;
+  $('ore-sarbatori').value = 0;
+  $('ore-nemotivate').value = 0;
+  $('ore-co').value = 0;
+  $('ore-zi-libera').value = 0;
+  $('zile-medical').value = 0;
+  $('tip-medical').value = 75;
+  $('medie-6-luni').value = 0;
+  $('bonus').value = 0;
+  calculeaza();
+}
+
+randareIstoric();
+calculeaza();
+</script>
+</body>
+</html>
