@@ -1,597 +1,153 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ro">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Calculator Salariu</title>
-<style>
-:root {
-  --primary: #1e3a5f;
-  --primary-light: #2563eb;
-  --success: #16a34a;
-  --danger: #dc2626;
-  --bg: #f1f5f9;
-  --card: #ffffff;
-  --text: #1e293b;
-  --text-muted: #64748b;
-  --border: #e2e8f0;
-  --radius: 12px;
-}
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  line-height: 1.6;
-  padding: 20px;
-}
-.container { max-width: 840px; margin: 0 auto; }
-header {
-  text-align: center;
-  padding: 24px 0 20px;
-  border-bottom: 3px solid var(--primary);
-  margin-bottom: 28px;
-}
-header h1 { font-size: 1.75rem; color: var(--primary); letter-spacing: -0.5px; }
-header p { color: var(--text-muted); font-size: 0.9rem; margin-top: 4px; }
-.card {
-  background: var(--card);
-  border-radius: var(--radius);
-  padding: 24px;
-  margin-bottom: 20px;
-  box-shadow: 0 1px 3px rgba(0,0,0,.08);
-}
-.card h2 {
-  font-size: 1.1rem;
-  color: var(--primary);
-  margin-bottom: 18px;
-  padding-bottom: 8px;
-  border-bottom: 2px solid var(--border);
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-.card h2::before {
-  content: '';
-  display: inline-block;
-  width: 4px;
-  height: 20px;
-  background: var(--primary-light);
-  border-radius: 2px;
-}
-.form-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px 24px;
-}
-.form-group { display: flex; flex-direction: column; gap: 4px; }
-.form-group.full { grid-column: 1 / -1; }
-.form-group label {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--text);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.form-group label small {
-  font-weight: 400;
-  color: var(--text-muted);
-  font-size: 0.75rem;
-}
-.form-group input,
-.form-group select {
-  padding: 10px 12px;
-  border: 1.5px solid var(--border);
-  border-radius: 8px;
-  font-size: 0.95rem;
-  transition: border-color .2s, box-shadow .2s;
-  background: #fff;
-  font-family: inherit;
-  width: 100%;
-}
-.form-group input:focus,
-.form-group select:focus {
-  outline: none;
-  border-color: var(--primary-light);
-  box-shadow: 0 0 0 3px rgba(37,99,235,.12);
-}
-.hint { font-size: 0.75rem; color: var(--text-muted); }
-.actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin: 10px 0 20px;
-}
-.btn {
-  padding: 11px 28px;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: opacity .2s, transform .1s;
-  font-family: inherit;
-}
-.btn:hover { opacity: .88; }
-.btn:active { transform: scale(.97); }
-.btn-primary { background: var(--primary-light); color: #fff; }
-.btn-success { background: var(--success); color: #fff; }
-.btn-danger { background: var(--danger); color: #fff; }
-.btn-outline { background: transparent; border: 1.5px solid var(--border); color: var(--text); }
-.btn-sm { padding: 7px 14px; font-size: .8rem; }
-.results { display: none; }
-.results.show { display: block; }
-.result-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-.result-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 10px 14px;
-  border-radius: 8px;
-  background: var(--bg);
-}
-.result-item .label { font-size: .85rem; color: var(--text-muted); }
-.result-item .value { font-weight: 700; font-size: 1rem; }
-.result-item.highlight {
-  background: var(--primary);
-  color: #fff;
-  grid-column: 1 / -1;
-}
-.result-item.highlight .label { color: rgba(255,255,255,.7); }
-.result-item.highlight .value { font-size: 1.3rem; }
-.result-item.sub .label { font-size: .78rem; padding-left: 12px; }
-.result-item.sub .value { font-size: .9rem; }
-.result-item.negative .value { color: var(--danger); }
-.result-item.positive .value { color: var(--success); }
-.result-divider {
-  grid-column: 1 / -1;
-  border: none;
-  border-top: 2px dashed var(--border);
-  margin: 6px 0;
-}
-.istoric-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 14px;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.istoric-tabel-wrapper { overflow-x: auto; }
-.istoric-tabel {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: .82rem;
-}
-.istoric-tabel th {
-  background: var(--primary);
-  color: #fff;
-  padding: 10px 8px;
-  text-align: left;
-  font-weight: 600;
-  white-space: nowrap;
-}
-.istoric-tabel td {
-  padding: 9px 8px;
-  border-bottom: 1px solid var(--border);
-  white-space: nowrap;
-}
-.istoric-tabel tr:hover td { background: #f8fafc; }
-.istoric-tabel .actions-cell { display: flex; gap: 4px; }
-.empty-state {
-  text-align: center;
-  padding: 30px;
-  color: var(--text-muted);
-  font-size: .9rem;
-}
-@media (max-width: 600px) {
-  body { padding: 12px; }
-  .form-grid { grid-template-columns: 1fr; }
-  .result-grid { grid-template-columns: 1fr; }
-  .result-item.highlight { grid-column: 1; }
-  .result-divider { grid-column: 1; }
-  header h1 { font-size: 1.3rem; }
-  .card { padding: 16px; }
-  .btn { width: 100%; }
-  .actions { flex-direction: column; }
-  .istoric-header { flex-direction: column; align-items: stretch; }
-}
-@media print {
-  .no-print { display: none !important; }
-  body { padding: 0.2in; background: #fff; font-size: 11pt; }
-  .card { box-shadow: none; border: 1px solid #ccc; break-inside: avoid; }
-  .result-item.highlight { background: #1e3a5f !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  .istoric-tabel th { background: #1e3a5f !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-}
-</style>
-</head>
-<body>
-<div class="container">
-  <header>
-    <h1>Calculator Salariu</h1>
-    <p>Simulare venit brut &amp; net — conform fluturașului de salariu</p>
-  </header>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#11231e" />
+    <meta name="description" content="Calculator salarial pentru România: estimare brut-net, ore lucrate, sărbători legale compensate, ore suplimentare, concediu medical, bonusuri și rest de plată." />
+    <title>Salariu clar · Calculator salarial</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero" aria-labelledby="page-title">
+        <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div>
+          <p class="eyebrow">România · estimare lunară</p>
+          <h1 id="page-title">Salariu, pe înțelesul tău.</h1>
+        </div>
+        <div class="hero-side">
+          <p id="today-label">—</p>
+          <button class="print-button" type="button" id="print-button" aria-label="Tipărește estimarea">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 9V3.75h11V9M6.5 17.5H4.25A1.75 1.75 0 0 1 2.5 15.75v-5A1.75 1.75 0 0 1 4.25 9h15.5a1.75 1.75 0 0 1 1.75 1.75v5a1.75 1.75 0 0 1-1.75 1.75H17.5M6.5 14.5h11v5.75h-11z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+            <span>Printează</span>
+          </button>
+        </div>
+      </section>
 
-  <div class="card no-print">
-    <h2>Date de bază</h2>
-    <div class="form-grid">
-      <div class="form-group">
-        <label>Salariu brut contractual <small>(lei/lună)</small></label>
-        <input type="number" id="brut-contractual" value="0" min="0" step="100">
-        <span class="hint">Salariul din contractul individual de muncă</span>
+      <section class="net-banner" aria-live="polite">
+        <div>
+          <p class="eyebrow">Estimare net total</p>
+          <strong id="total-net">0 lei</strong>
+          <p class="muted" id="net-caption">pentru luna selectată</p>
+        </div>
+        <div class="banner-breakdown">
+          <div><span>Brut calculat</span><b id="total-gross">0 lei</b></div>
+          <div><span>Rețineri</span><b id="total-deductions">0 lei</b></div>
+        </div>
+        <div class="net-curve" aria-hidden="true">
+          <svg viewBox="0 0 160 58" preserveAspectRatio="none"><path d="M0 51C15 43 18 48 31 39C42 31 48 39 59 25C68 16 79 31 91 23C107 12 112 20 126 11C140 2 149 8 160 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+        </div>
+      </section>
+
+      <div class="main-grid">
+        <form class="calculator" id="salary-form">
+          <section class="form-section period-section">
+            <div class="section-heading">
+              <div class="step">01</div>
+              <div><h2>Perioada și salariul de bază</h2><p>Începem cu contractul tău lunar.</p></div>
+            </div>
+            <div class="fields two-cols">
+              <label class="field"><span>Luna calculată</span><input id="month" type="month" /></label>
+              <label class="field"><span>Venit brut lunar</span><span class="input-with-suffix"><input id="gross-base" type="number" min="0" step="50" placeholder="Introdu brutul" inputmode="decimal" /><i>lei</i></span></label>
+            </div>
+            <div class="period-card">
+              <div class="calendar-icon" aria-hidden="true"><span></span><span></span><b id="calendar-number">—</b></div>
+              <div><strong id="workdays-label">— zile lucrătoare</strong><p id="period-detail">— ore standard · fără sărbătorile legale care cad în timpul săptămânii</p></div>
+              <span class="calendar-tag" id="holiday-count">— libere legale</span>
+            </div>
+            <div class="base-net">
+              <div><span>Net salariu de bază</span><strong id="base-net">0 lei</strong></div>
+              <p id="base-net-detail">CAS, CASS și impozit calculate automat</p>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <div class="section-heading">
+              <div class="step">02</div>
+              <div><h2>Timp lucrat și timp plătit</h2><p>Introdu orele separat, fără a le suprapune.</p></div>
+            </div>
+            <div class="fields work-fields">
+              <label class="field"><span>Ore normale lucrate</span><span class="input-with-suffix"><input id="regular-hours" type="number" min="0" step="1" /><i>ore</i></span><small>Exclud orele de sărbătoare, suplimentare și zilele plătite.</small></label>
+              <label class="field featured-field"><span><em>Timp liber</em> Sărbătoare legală</span><span class="input-with-suffix"><input id="holiday-hours" type="number" min="0" step="1" value="0" /><i>ore</i></span><small>Plată normală; se compensează ulterior cu timp liber plătit.</small></label>
+              <label class="field featured-field"><span><em>Spor</em> Ore suplimentare</span><span class="input-with-suffix"><input id="overtime-hours" type="number" min="0" step="1" value="0" /><i>ore</i></span><small>Plată 175%: tariful normal + spor de 75%.</small></label>
+              <label class="field"><span>Zile CO plătite</span><span class="input-with-suffix"><input id="paid-leave-days" type="number" min="0" step="0.5" value="0" /><i>zile</i></span><small>O zi de concediu de odihnă, la valoarea unei zile standard.</small></label>
+              <label class="field"><span>Alte zile libere plătite</span><span class="input-with-suffix"><input id="paid-days" type="number" min="0" step="0.5" value="0" /><i>zile</i></span><small>Zile libere plătite, distincte de CO.</small></label>
+              <label class="field"><span>Bonus brut</span><span class="input-with-suffix"><input id="bonus-gross" type="number" min="0" step="50" value="0" /><i>lei</i></span><small>Bonus taxabil, inclus în venitul brut.</small></label>
+              <label class="field"><span>Ore weekend</span><span class="input-with-suffix"><input id="weekend-hours" type="number" min="0" step="1" value="0" /><i>ore</i></span><small>Doar sporul de weekend, ca pe fluturaș.</small></label>
+              <label class="field"><span>Spor weekend</span><span class="input-with-suffix"><input id="weekend-rate" type="number" min="0" step="1" value="10" /><i>%</i></span><small>Implicit 10%; poți introduce alt procent.</small></label>
+            </div>
+          </section>
+
+          <section class="form-section medical-section">
+            <div class="section-heading medical-heading">
+              <div class="step">03</div>
+              <div><h2>Concediu medical</h2><p>Calcul de indemnizație pentru incapacitate temporară de muncă.</p></div>
+              <button class="text-button" type="button" id="toggle-medical" aria-expanded="false">Arată formula <span>↓</span></button>
+            </div>
+            <div class="medical-formula" id="medical-formula" hidden>
+              <p><b>Baza zilnică</b> = venituri brute eligibile în ultimele 6 luni ÷ zile de stagiu de cotizare.</p>
+              <p><b>Indemnizație brută</b> = baza zilnică × zile indemnizabile × procentul aplicabil.</p>
+            </div>
+            <div class="fields medical-fields">
+              <label class="field"><span>Zile CM cu indemnizație</span><span class="input-with-suffix"><input id="medical-days" type="number" min="0" step="1" value="0" /><i>zile</i></span><small>Dacă fluturașul arată CM, dar suma este 0 lei, lasă acest câmp la 0.</small></label>
+              <label class="field"><span>Tip indemnizație</span><select id="medical-type"><option value="ordinary">Boală obișnuită (auto)</option><option value="55">Boală obișnuită · 55%</option><option value="65">Boală obișnuită · 65%</option><option value="75">Boală obișnuită · 75%</option><option value="85">Alt tip · 85%</option><option value="100">Alt tip · 100%</option><option value="custom">Procent personalizat</option></select><small id="medical-rate-note">55% pentru 1–7 zile, 65% pentru 8–14, 75% de la 15 zile.</small></label>
+              <label class="field"><span>Media veniturilor brute, ultimele 6 luni</span><span class="input-with-suffix"><input id="medical-average-income" type="number" min="0" step="50" /><i>lei</i></span><small>Media lunară reală; calculatorul o înmulțește cu 6 pentru baza de referință.</small></label>
+              <label class="field"><span>Zile de stagiu, ultimele 6 luni</span><span class="input-with-suffix"><input id="medical-reference-days" type="number" min="1" step="1" /><i>zile</i></span><small>Numărul real de zile de cotizare din baza de calcul.</small></label>
+              <label class="field custom-rate-field" id="custom-rate-wrap" hidden><span>Procent personalizat</span><span class="input-with-suffix"><input id="custom-rate" type="number" min="0" max="100" step="1" value="75" /><i>%</i></span></label>
+            </div>
+            <div class="medical-output"><div><span>Indemnizație medicală brută</span><strong id="medical-gross">0 lei</strong></div><div><span>Procent folosit</span><strong id="medical-rate">—</strong></div><div><span>Bază zilnică</span><strong id="medical-daily-base">0 lei</strong></div></div>
+          </section>
+
+          <section class="form-section adjustments-section">
+            <div class="section-heading"><div class="step">04</div><div><h2>Personalizare fiscală</h2><p>Opțional — completează doar dacă se aplică situației tale.</p></div></div>
+            <div class="fields two-cols">
+              <label class="field"><span>Deducere personală lunară</span><span class="input-with-suffix"><input id="personal-deduction" type="number" min="0" step="1" value="0" /><i>lei</i></span><small>0 dacă nu ai o deducere confirmată de angajator.</small></label>
+              <label class="field"><span>Beneficii neimpozabile</span><span class="input-with-suffix"><input id="non-taxable-benefits" type="number" min="0" step="1" value="0" /><i>lei</i></span><small>Hrană, abonament medical și sport - afișate separat, ca pe fluturaș.</small></label>
+              <label class="field"><span>Avans salarial</span><span class="input-with-suffix"><input id="salary-advance" type="number" min="0" step="50" value="0" /><i>lei</i></span><small>Se scade pentru a afișa restul de plată.</small></label>
+              <div class="medical-toggles"><label class="toggle-field"><input id="medical-cass" type="checkbox" checked /><span class="toggle-track" aria-hidden="true"><i></i></span><span><b>Aplică CASS la CM</b><small>Activ pentru indemnizațiile supuse CASS.</small></span></label><label class="toggle-field"><input id="medical-cas" type="checkbox" checked /><span class="toggle-track" aria-hidden="true"><i></i></span><span><b>Aplică CAS la CM</b><small>Activ pentru a urmări rândul „CAS CM” din fluturaș.</small></span></label></div>
+            </div>
+          </section>
+        </form>
+
+        <aside class="summary" aria-label="Centralizator calcul">
+          <div class="summary-top">
+            <p class="eyebrow">Centralizator</p>
+            <h2>Unde ajung banii</h2>
+            <span class="month-chip" id="summary-month">—</span>
+          </div>
+          <div class="summary-block earnings"><p>Venituri brute</p><div class="line-item"><span>Normă + zile plătite</span><b id="sum-regular">0 lei</b></div><div class="line-item"><span>Sărbătoare legală</span><b id="sum-holiday">0 lei</b></div><div class="line-item"><span>Ore suplimentare</span><b id="sum-overtime">0 lei</b></div><div class="line-item"><span>Spor weekend</span><b id="sum-weekend">0 lei</b></div><div class="line-item"><span>Bonus brut</span><b id="sum-bonus">0 lei</b></div><div class="line-item"><span>Concediu medical</span><b id="sum-medical">0 lei</b></div><div class="total-line"><span>Total brut</span><b id="sum-gross">0 lei</b></div></div>
+          <div class="summary-block deductions"><p>Contribuții și impozit</p><div class="line-item"><span>CAS <small>25%</small></span><b id="sum-cas">− 0 lei</b></div><div class="line-item"><span>CASS <small>10%</small></span><b id="sum-cass">− 0 lei</b></div><div class="line-item"><span>Impozit pe venit <small>10%</small></span><b id="sum-tax">− 0 lei</b></div><div class="total-line"><span>Total rețineri</span><b id="sum-deductions">− 0 lei</b></div></div>
+          <div class="summary-block payout"><p>Plată efectivă</p><div class="line-item"><span>Net înainte de avans</span><b id="sum-net-before-benefits">0 lei</b></div><div class="line-item"><span>Beneficii în afara brutului</span><b id="sum-benefits">0 lei</b></div><div class="line-item"><span>Avans salarial</span><b id="sum-advance">− 0 lei</b></div></div>
+          <div class="take-home"><span>Rest de plată</span><strong id="summary-net">0 lei</strong><p id="net-percentage">0% din brutul calculat</p></div>
+          <div class="assumption-box"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v4m0 4h.01M10.3 3.85 2.6 17.2A2.1 2.1 0 0 0 4.42 20.3h15.16a2.1 2.1 0 0 0 1.82-3.1L13.7 3.85a1.97 1.97 0 0 0-3.4 0Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><p>Estimare orientativă. Nu include beneficii, scutiri, popriri sau particularități de contract. Verifică fluturașul cu angajatorul / contabilul.</p></div>
+        </aside>
       </div>
-      <div class="form-group">
-        <label>Salariu minim pe economie <small>(lei)</small></label>
-        <input type="number" id="salariu-minim" value="0" min="0" step="100">
-        <span class="hint">Folosit pentru calculul deducerii personale</span>
-      </div>
-      <div class="form-group">
-        <label>Zile lucrătoare totale în lună <small>(luni-vineri)</small></label>
-        <input type="number" id="zile-lucratoare" value="0" min="0" max="31">
-      </div>
-      <div class="form-group">
-        <label>Sărbători legale în această lună</label>
-        <input type="number" id="sarbatori-legale" value="0" min="0" max="10">
-        <span class="hint">Se scad automat din zilele lucrătoare (ex: 1-2 Mai, Vinerea Mare, Paște, etc.)</span>
-      </div>
-      <div class="form-group">
-        <label>Ore pe zi</label>
-        <input type="number" id="ore-pe-zi" value="0" min="0" max="24" step="0.5">
-      </div>
-      <div class="form-group">
-        <label>Persoane în întreținere</label>
-        <select id="persoane-intretinere">
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4">4+</option>
-        </select>
-      </div>
-    </div>
-  </div>
 
-  <div class="card no-print">
-    <h2>Ore &amp; Sporuri (adaosuri peste salariul contractual)</h2>
-    <div class="form-grid">
-      <div class="form-group">
-        <label>Ore weekend <small>(+10%)</small></label>
-        <input type="number" id="ore-weekend" value="0" min="0" step="1">
-      </div>
-      <div class="form-group">
-        <label>Ore de noapte <small>(+25%)</small></label>
-        <input type="number" id="ore-noapte" value="0" min="0" step="1">
-      </div>
-      <div class="form-group">
-        <label>Ore sărbători legale <small>(×2)</small></label>
-        <input type="number" id="ore-sarbatori" value="0" min="0" step="1">
-      </div>
-      <div class="form-group">
-        <label>Ore nemotivate <small>(neplătite — se scad)</small></label>
-        <input type="number" id="ore-nemotivate" value="0" min="0" step="1">
-      </div>
-      <div class="form-group">
-        <label>Ore concediu de odihnă (CO)</label>
-        <input type="number" id="ore-co" value="0" min="0" step="1">
-      </div>
-      <div class="form-group">
-        <label>Ore libere plătite / zi liberă</label>
-        <input type="number" id="ore-zi-libera" value="0" min="0" step="1">
-      </div>
-      <div class="form-group">
-        <label>Zile concediu medical</label>
-        <input type="number" id="zile-medical" value="0" min="0" step="1">
-        <span class="hint">Se scad automat din orele de regie.</span>
-      </div>
-      <div class="form-group">
-        <label>Tip concediu medical</label>
-        <select id="tip-medical">
-          <option value="55">1-7 zile (55%)</option>
-          <option value="65">8-14 zile (65%)</option>
-          <option value="75" selected>≥ 15 zile (75%)</option>
-          <option value="100">Special 100% (tuberculoză, cancer, HIV, urgențe chirurgicale)</option>
-        </select>
-        <span class="hint">Conform OUG 158/2005. La click pe „Calculează" se sugerează procentajul în funcție de zile.</span>
-      </div>
-      <div class="form-group">
-        <label>Medie salarială brută ultimele 6 luni <small>(lei)</small></label>
-        <input type="number" id="medie-6-luni" value="0" min="0" step="100">
-        <span class="hint">Indemnizația = medie6Luni ÷ 30 × zileCM × procentaj. După fluturaș, ajustezi manual medie6Luni pentru potrivire exactă.</span>
-      </div>
-      <div class="form-group">
-        <label>Bonus de performanță / primă <small>(lei)</small></label>
-        <input type="number" id="bonus" value="0" min="0" step="100">
-      </div>
-    </div>
-  </div>
+      <section class="guide" aria-labelledby="guide-title">
+        <div class="guide-intro"><p class="eyebrow">Ghid rapid</p><h2 id="guide-title">Cum completezi calculatorul</h2><p>Introdu valorile din fluturaș pe rânduri separate. Rezultatul se actualizează imediat.</p></div>
+        <div class="guide-list">
+          <article><span>1</span><div><b>Alege luna corectă</b><p>Pentru comparația cu un fluturaș vechi, selectează exact luna lui. Numărul de zile și ore standard se schimbă automat.</p></div></article>
+          <article><span>2</span><div><b>Nu suprapune orele</b><p>„Ore normale” exclude orele de sărbătoare, suplimentare, CO și zilele libere plătite. CO și celelalte zile plătite se introduc separat.</p></div></article>
+          <article><span>3</span><div><b>Sărbătoare legală</b><p>În acest calculator este plătită la tarif normal și compensată ulterior cu timp liber plătit, după modelul fluturașilor tăi.</p></div></article>
+          <article><span>4</span><div><b>Concediu medical</b><p>Completează doar zilele pentru care apare indemnizație. Media brută și zilele de stagiu dau baza zilnică; dacă CM are 0 lei pe fluturaș, lasă zilele la 0.</p></div></article>
+          <article><span>5</span><div><b>Net sau rest de plată?</b><p>Netul este suma după CAS, CASS și impozit. Restul de plată scade și avansul. Beneficiile neimpozabile sunt afișate separat și nu reduc netul cash.</p></div></article>
+        </div>
+      </section>
 
-  <div class="actions no-print">
-    <button class="btn btn-primary" onclick="calculeaza()">Calculează</button>
-    <button class="btn btn-success" onclick="salveazaIstoric()">Salvează în istoric</button>
-    <button class="btn btn-outline" onclick="reseteaza()">Resetează</button>
-  </div>
-
-  <div class="card" id="rezultate-card">
-    <h2>Rezultate</h2>
-    <div id="rezultate" class="results show">
-      <div class="result-grid" id="rezultate-container">
-        <div class="result-item"><span class="label">Tarif orar</span><span class="value" id="r-tarif-orar">—</span></div>
-        <div class="result-item sub"><span class="label">Zile efective de calcul</span><span class="value" id="r-zile-efective">—</span></div>
-        <hr class="result-divider">
-        <div class="result-item sub"><span class="label">Ore regie</span><span class="value" id="r-ore-regie">—</span></div>
-        <div class="result-item sub"><span class="label">Concediu de odihnă (CO)</span><span class="value" id="r-co-val">—</span></div>
-        <div class="result-item sub"><span class="label">Zi liberă plătită</span><span class="value" id="r-zi-libera-val">—</span></div>
-        <div class="result-item sub"><span class="label">Spor weekend (+10%)</span><span class="value" id="r-spor-weekend">—</span></div>
-        <div class="result-item sub"><span class="label">Spor noapte (+25%)</span><span class="value" id="r-spor-noapte">—</span></div>
-        <div class="result-item sub"><span class="label">Spor sărbători legale (×2)</span><span class="value" id="r-spor-sarbatori">—</span></div>
-        <div class="result-item sub negative"><span class="label">Absențe nemotivate</span><span class="value" id="r-absente">—</span></div>
-        <div class="result-item sub"><span class="label">Bonus / primă</span><span class="value" id="r-bonus-val">—</span></div>
-        <div class="result-item sub"><span class="label">Indemnizație concediu medical</span><span class="value" id="r-medical-val">—</span></div>
-        <div class="result-item highlight"><span class="label">Venit Brut Total</span><span class="value" id="r-total-brut">—</span></div>
-        <hr class="result-divider">
-        <div class="result-item negative"><span class="label">CAS (25%)</span><span class="value" id="r-cas">—</span></div>
-        <div class="result-item negative"><span class="label">CASS (10%)</span><span class="value" id="r-cass">—</span></div>
-        <div class="result-item"><span class="label">Deducere personală</span><span class="value" id="r-deducere">—</span></div>
-        <div class="result-item"><span class="label">Baza impozabilă</span><span class="value" id="r-baza">—</span></div>
-        <div class="result-item negative"><span class="label">Impozit pe venit (10%)</span><span class="value" id="r-impozit">—</span></div>
-        <hr class="result-divider">
-        <div class="result-item highlight"><span class="label">Venit NET</span><span class="value" id="r-net">—</span></div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card" id="istoric-card">
-    <div class="istoric-header">
-      <h2>Istoric calcule</h2>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        <button class="btn btn-sm btn-outline no-print" onclick="exportCSV()">Export CSV</button>
-        <button class="btn btn-sm btn-outline no-print" onclick="window.print()">Print / PDF</button>
-        <button class="btn btn-sm btn-danger no-print" onclick="stergeTotIstoric()">Șterge tot</button>
-      </div>
-    </div>
-    <div id="istoric-container">
-      <div class="empty-state">Nu ai încă niciun calcul salvat.</div>
-    </div>
-  </div>
-
-  <footer style="text-align:center;padding:20px 0;color:var(--text-muted);font-size:0.8rem;">
-    Calculator Salariu — conform legislației în vigoare. Rezultatele sunt estimative.
-  </footer>
-</div>
-
-<script>
-function $(id) { return document.getElementById(id); }
-function getVal(id) { return parseFloat($(id).value) || 0; }
-
-function formatMoney(v) {
-  return v.toLocaleString('ro-RO', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' lei';
-}
-
-function calcCOrateDinIstoric() {
-  const istoric = JSON.parse(localStorage.getItem('salariu_istoric') || '[]');
-  if (istoric.length < 3) return 0;
-  let totalBrut = 0, totalOre = 0;
-  for (let i = 0; i < 3; i++) {
-    const d = istoric[i];
-    const zE = Math.max(1, d.zileLucratoare - (d.sarbatoriLegale || 0));
-    totalBrut += d.totalBrut || 0;
-    totalOre += zE * (d.orePeZi || 8);
-  }
-  return totalOre > 0 ? totalBrut / totalOre : 0;
-}
-
-function calculeaza() {
-  const brutContractual = getVal('brut-contractual');
-  const salMin = getVal('salariu-minim');
-  const zileLucratoare = getVal('zile-lucratoare');
-  const sarbatoriLegale = getVal('sarbatori-legale');
-  const zileEfective = Math.max(1, zileLucratoare - sarbatoriLegale);
-  const orePeZi = getVal('ore-pe-zi');
-  const persoaneIntretinere = parseInt($('persoane-intretinere').value) || 0;
-
-  const oreWeekend = getVal('ore-weekend');
-  const oreNoapte = getVal('ore-noapte');
-  const oreSarbatori = getVal('ore-sarbatori');
-  const oreNemotivate = getVal('ore-nemotivate');
-  const oreCO = getVal('ore-co');
-  const oreZiLibera = getVal('ore-zi-libera');
-  const zileMedical = getVal('zile-medical');
-  let tipMedical = parseInt($('tip-medical').value) || 75;
-  if (zileMedical > 0 && tipMedical !== 100) {
-    const sugerat = zileMedical <= 7 ? 55 : zileMedical <= 14 ? 65 : 75;
-    $('tip-medical').value = sugerat;
-    tipMedical = sugerat;
-  }
-  const medie6Luni = getVal('medie-6-luni');
-  const bonus = getVal('bonus');
-
-  const tarifOrar = zileEfective * orePeZi > 0
-    ? brutContractual / (zileEfective * orePeZi)
-    : 0;
-
-  const oreRegie = Math.max(0, zileEfective * orePeZi - oreCO - zileMedical * orePeZi - oreZiLibera - oreNemotivate);
-
-  const regiePay = oreRegie * tarifOrar;
-  const tarifCO = calcCOrateDinIstoric() || tarifOrar;
-  const COpay = oreCO * tarifCO;
-  const ziLiberaPay = oreZiLibera * tarifOrar;
-  const sporWeekend = oreWeekend * tarifOrar * 0.1;
-  const sporNoapte = oreNoapte * tarifOrar * 0.25;
-  const sporSarbatori = oreSarbatori * tarifOrar * 1.0;
-  const absente = oreNemotivate * tarifOrar;
-
-  const bazaZilnica = medie6Luni > 0 ? medie6Luni / 30 : 0;
-  const medicalBrut = bazaZilnica * zileMedical * (tipMedical / 100);
-
-  const regularBrut = regiePay + COpay + ziLiberaPay + sporWeekend + sporNoapte + sporSarbatori + bonus;
-  const totalBrut = regularBrut + medicalBrut;
-
-  const cas = Math.max(0, totalBrut * 0.25);
-  const cass = Math.max(0, totalBrut * 0.10);
-
-  const deducereBaza = 510;
-  const adaosPersoana = 204;
-  const deducereMax = deducereBaza + Math.min(persoaneIntretinere, 4) * adaosPersoana;
-  let deducere = 0;
-  if (totalBrut > 0 && totalBrut <= salMin) {
-    deducere = deducereMax;
-  } else if (totalBrut < 2 * salMin) {
-    deducere = deducereMax * (1 - (totalBrut - salMin) / salMin);
-  }
-  deducere = Math.max(0, deducere);
-
-  const bazaImpozabila = Math.max(0, totalBrut - cas - cass - deducere);
-  const impozit = bazaImpozabila * 0.10;
-  const net = totalBrut - cas - cass - impozit;
-
-  $('r-tarif-orar').textContent = formatMoney(tarifOrar) + (tarifCO !== tarifOrar ? ' (CO: ' + formatMoney(tarifCO) + ')' : '');
-  $('r-zile-efective').textContent = zileEfective + ' zile × ' + orePeZi + 'h = ' + (zileEfective * orePeZi) + 'h';
-  $('r-ore-regie').textContent = oreRegie + 'h × ' + formatMoney(tarifOrar) + ' = ' + formatMoney(regiePay);
-  $('r-co-val').textContent = (oreCO > 0 ? oreCO + 'h × ' + formatMoney(tarifCO) + ' = ' : '') + (oreCO > 0 ? formatMoney(COpay) : '—');
-  $('r-zi-libera-val').textContent = (oreZiLibera > 0 ? oreZiLibera + 'h × ' + formatMoney(tarifOrar) + ' = ' : '') + (oreZiLibera > 0 ? formatMoney(ziLiberaPay) : '—');
-  $('r-spor-weekend').textContent = (sporWeekend > 0 ? '+ ' : '') + formatMoney(sporWeekend);
-  $('r-spor-noapte').textContent = (sporNoapte > 0 ? '+ ' : '') + formatMoney(sporNoapte);
-  $('r-spor-sarbatori').textContent = (sporSarbatori > 0 ? '+ ' : '') + formatMoney(sporSarbatori);
-  $('r-absente').textContent = (absente > 0 ? '− ' : '') + formatMoney(absente);
-  $('r-bonus-val').textContent = (bonus > 0 ? '+ ' : '') + formatMoney(bonus);
-  $('r-medical-val').textContent = (medicalBrut > 0 ? '+ ' : '') + formatMoney(medicalBrut) + (medicalBrut > 0 ? ' (la ' + tipMedical + '%)' : '');
-  $('r-total-brut').textContent = formatMoney(totalBrut);
-  $('r-cas').textContent = formatMoney(cas);
-  $('r-cass').textContent = formatMoney(cass);
-  $('r-deducere').textContent = formatMoney(deducere);
-  $('r-baza').textContent = formatMoney(bazaImpozabila);
-  $('r-impozit').textContent = formatMoney(impozit);
-  $('r-net').textContent = formatMoney(net);
-
-  $('rezultate').classList.add('show');
-  $('rezultate-card').scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-  return {
-    timestamp: new Date().toLocaleString('ro-RO'),
-    brutContractual, salMin, zileLucratoare, sarbatoriLegale, orePeZi, persoaneIntretinere,
-    oreWeekend, oreNoapte, oreSarbatori, oreNemotivate, oreCO, oreZiLibera, zileMedical, tipMedical, medie6Luni, medicalBrut, bonus,
-    tarifOrar, tarifCO, oreRegie, regiePay, COpay, ziLiberaPay, sporWeekend, sporNoapte, sporSarbatori, absente,
-    regularBrut, totalBrut, cas, cass, deducere, bazaImpozabila, impozit, net
-  };
-}
-
-function salveazaIstoric() {
-  const data = calculeaza();
-  const istoric = JSON.parse(localStorage.getItem('salariu_istoric') || '[]');
-  istoric.unshift(data);
-  if (istoric.length > 100) istoric.pop();
-  localStorage.setItem('salariu_istoric', JSON.stringify(istoric));
-  randareIstoric();
-}
-
-function stergeDinIstoric(index) {
-  const istoric = JSON.parse(localStorage.getItem('salariu_istoric') || '[]');
-  istoric.splice(index, 1);
-  localStorage.setItem('salariu_istoric', JSON.stringify(istoric));
-  randareIstoric();
-}
-
-function stergeTotIstoric() {
-  if (!confirm('Ești sigur că vrei să ștergi tot istoricul?')) return;
-  localStorage.removeItem('salariu_istoric');
-  randareIstoric();
-}
-
-function randareIstoric() {
-  const container = $('istoric-container');
-  const istoric = JSON.parse(localStorage.getItem('salariu_istoric') || '[]');
-  if (istoric.length === 0) {
-    container.innerHTML = '<div class="empty-state">Nu ai încă niciun calcul salvat.</div>';
-    return;
-  }
-  let html = '<div class="istoric-tabel-wrapper"><table class="istoric-tabel"><thead><tr>' +
-    '<th>Data</th><th>Brut contractual</th><th>Brut total</th><th>Net</th><th class="no-print">Acțiuni</th>' +
-    '</tr></thead><tbody>';
-  istoric.forEach((d, i) => {
-    html += '<tr>' +
-      `<td>${d.timestamp}</td>` +
-      `<td>${formatMoney(d.brutContractual)}</td>` +
-      `<td>${formatMoney(d.totalBrut)}</td>` +
-      `<td><strong>${formatMoney(d.net)}</strong></td>` +
-      '<td class="actions-cell no-print">' +
-      `<button class="btn btn-sm btn-outline" onclick="veziDetalii(${i})">Detalii</button>` +
-      `<button class="btn btn-sm btn-danger" onclick="stergeDinIstoric(${i})">Șterge</button>` +
-      '</td></tr>';
-  });
-  html += '</tbody></table></div>';
-  container.innerHTML = html;
-}
-
-function veziDetalii(index) {
-  const istoric = JSON.parse(localStorage.getItem('salariu_istoric') || '[]');
-  const d = istoric[index];
-  if (!d) return;
-  $('brut-contractual').value = d.brutContractual;
-  $('salariu-minim').value = d.salMin;
-  $('zile-lucratoare').value = d.zileLucratoare;
-  $('sarbatori-legale').value = d.sarbatoriLegale != null ? d.sarbatoriLegale : 0;
-  $('ore-pe-zi').value = d.orePeZi;
-  $('persoane-intretinere').value = d.persoaneIntretinere;
-  $('ore-weekend').value = d.oreWeekend;
-  $('ore-noapte').value = d.oreNoapte;
-  $('ore-sarbatori').value = d.oreSarbatori;
-  $('ore-nemotivate').value = d.oreNemotivate;
-  $('ore-co').value = d.oreCO || 0;
-  $('ore-zi-libera').value = d.oreZiLibera || 0;
-  $('zile-medical').value = d.zileMedical || 0;
-  $('tip-medical').value = d.tipMedical || 75;
-  $('medie-6-luni').value = d.medie6Luni || 0;
-  $('bonus').value = d.bonus;
-  calculeaza();
-  $('rezultate-card').scrollIntoView({ behavior: 'smooth' });
-}
-
-function exportCSV() {
-  const istoric = JSON.parse(localStorage.getItem('salariu_istoric') || '[]');
-  if (istoric.length === 0) { alert('Nu există date de exportat.'); return; }
-  const header = 'Dată;Brut contractual;Sal.Min;Zile;Sărb.legale;Zile efective;Ore/Zi;Pers.Într.;Ore W/E;Ore Noapte;Ore Sărb.;Ore Nemot.;Ore CO;Ore zi liberă;Zile Med.;Tip CM;Medie 6 luni;Indemnizație CM;Bonus;Regie pay;CO pay;Zi lib. pay;Spor W/E;Spor Noapte;Spor Sărb.;Absențe;Regular Brut;Total Brut;CAS;CASS;Deducere;Baza Imp.;Impozit;Net';
-  const rows = istoric.map(d =>
-    `${d.timestamp};${d.brutContractual};${d.salMin};${d.zileLucratoare};${(d.sarbatoriLegale||0)};${Math.max(1,d.zileLucratoare-(d.sarbatoriLegale||0))};${d.orePeZi};${d.persoaneIntretinere};${d.oreWeekend};${d.oreNoapte};${d.oreSarbatori};${d.oreNemotivate};${(d.oreCO||0)};${(d.oreZiLibera||0)};${(d.zileMedical||0)};${(d.tipMedical||75)};${(d.medie6Luni||0).toFixed(2)};${(d.medicalBrut||0).toFixed(2)};${d.bonus};${(d.regiePay||0).toFixed(2)};${(d.COpay||0).toFixed(2)};${(d.ziLiberaPay||0).toFixed(2)};${(d.sporWeekend||0).toFixed(2)};${(d.sporNoapte||0).toFixed(2)};${(d.sporSarbatori||0).toFixed(2)};${(d.absente||0).toFixed(2)};${(d.regularBrut||0).toFixed(2)};${d.totalBrut.toFixed(2)};${d.cas.toFixed(2)};${d.cass.toFixed(2)};${d.deducere.toFixed(2)};${d.bazaImpozabila.toFixed(2)};${d.impozit.toFixed(2)};${d.net.toFixed(2)}`
-  );
-  const csv = '\uFEFF' + header + '\n' + rows.join('\n');
-  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = 'salariu_istoric.csv';
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-function reseteaza() {
-  if (!confirm('Resetezi toate câmpurile la valorile implicite?')) return;
-  $('brut-contractual').value = 0;
-  $('salariu-minim').value = 0;
-  $('zile-lucratoare').value = 0;
-  $('sarbatori-legale').value = 0;
-  $('ore-pe-zi').value = 0;
-  $('persoane-intretinere').value = 0;
-  $('ore-weekend').value = 0;
-  $('ore-noapte').value = 0;
-  $('ore-sarbatori').value = 0;
-  $('ore-nemotivate').value = 0;
-  $('ore-co').value = 0;
-  $('ore-zi-libera').value = 0;
-  $('zile-medical').value = 0;
-  $('tip-medical').value = 75;
-  $('medie-6-luni').value = 0;
-  $('bonus').value = 0;
-  calculeaza();
-}
-
-randareIstoric();
-calculeaza();
-</script>
-</body>
+      <section class="notes">
+        <div><p class="eyebrow">Ipoteze în calculator</p><h2>Clar despre regulile folosite.</h2></div>
+        <div class="notes-grid">
+          <article><b>Contribuții standard</b><p>CAS 25%, CASS 10% și impozit pe venit 10% după contribuții și deducere declarată. Pentru CM, contribuțiile se pot activa separat.</p></article>
+          <article><b>Munca în zile libere</b><p>Sărbătoarea legală este plătită la tariful normal și compensată cu timp liber; orele suplimentare sunt la 175%. Ai și spor de weekend configurabil, preluat din structura fluturașilor.</p></article>
+          <article><b>Concediu medical</b><p>Pentru boală obișnuită, aplicația alege 55%, 65% sau 75%. Introdu media reală a veniturilor brute pentru perioada de referință.</p></article>
+        </div>
+        <p class="legal-sources">Repere: <a href="https://legislatie.just.ro/Public/DetaliiDocument/171282" target="_blank" rel="noreferrer">Codul fiscal</a>, <a href="https://legislatie.just.ro/Public/DetaliiDocument/41634" target="_blank" rel="noreferrer">Codul muncii</a>, <a href="https://legislatie.just.ro/Public/DetaliiDocument/62099" target="_blank" rel="noreferrer">OUG nr. 158/2005</a>. Reglementările și excepțiile se pot actualiza.</p>
+      </section>
+    </main>
+    <script src="app.js"></script>
+  </body>
 </html>
