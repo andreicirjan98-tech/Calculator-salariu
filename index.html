@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="ro">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#11231e" />
+    <meta name="description" content="Calculator salarial pentru România: estimare brut-net, ore lucrate, sărbători legale compensate, ore suplimentare, concediu medical, bonusuri și rest de plată." />
+    <title>Salariu clar · Calculator salarial</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="shell">
+      <section class="hero" aria-labelledby="page-title">
+        <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div>
+          <p class="eyebrow">România · estimare lunară</p>
+          <h1 id="page-title">Salariu, pe înțelesul tău.</h1>
+        </div>
+        <div class="hero-side">
+          <p id="today-label">—</p>
+          <button class="print-button" type="button" id="print-button" aria-label="Tipărește estimarea">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 9V3.75h11V9M6.5 17.5H4.25A1.75 1.75 0 0 1 2.5 15.75v-5A1.75 1.75 0 0 1 4.25 9h15.5a1.75 1.75 0 0 1 1.75 1.75v5a1.75 1.75 0 0 1-1.75 1.75H17.5M6.5 14.5h11v5.75h-11z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>
+            <span>Printează</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="net-banner" aria-live="polite">
+        <div>
+          <p class="eyebrow">Estimare net total</p>
+          <strong id="total-net">0 lei</strong>
+          <p class="muted" id="net-caption">pentru luna selectată</p>
+        </div>
+        <div class="banner-breakdown">
+          <div><span>Brut calculat</span><b id="total-gross">0 lei</b></div>
+          <div><span>Rețineri</span><b id="total-deductions">0 lei</b></div>
+        </div>
+        <div class="net-curve" aria-hidden="true">
+          <svg viewBox="0 0 160 58" preserveAspectRatio="none"><path d="M0 51C15 43 18 48 31 39C42 31 48 39 59 25C68 16 79 31 91 23C107 12 112 20 126 11C140 2 149 8 160 0" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"/></svg>
+        </div>
+      </section>
+
+      <div class="main-grid">
+        <form class="calculator" id="salary-form">
+          <section class="form-section period-section">
+            <div class="section-heading">
+              <div class="step">01</div>
+              <div><h2>Perioada și salariul de bază</h2><p>Începem cu contractul tău lunar.</p></div>
+            </div>
+            <div class="fields two-cols">
+              <label class="field"><span>Luna calculată</span><input id="month" type="month" /></label>
+              <label class="field"><span>Venit brut lunar</span><span class="input-with-suffix"><input id="gross-base" type="number" min="0" step="50" placeholder="Introdu brutul" inputmode="decimal" /><i>lei</i></span></label>
+            </div>
+            <div class="period-card">
+              <div class="calendar-icon" aria-hidden="true"><span></span><span></span><b id="calendar-number">—</b></div>
+              <div><strong id="workdays-label">— zile lucrătoare</strong><p id="period-detail">— ore standard · fără sărbătorile legale care cad în timpul săptămânii</p></div>
+              <span class="calendar-tag" id="holiday-count">— libere legale</span>
+            </div>
+            <div class="base-net">
+              <div><span>Net salariu de bază</span><strong id="base-net">0 lei</strong></div>
+              <p id="base-net-detail">CAS, CASS și impozit calculate automat</p>
+            </div>
+          </section>
+
+          <section class="form-section">
+            <div class="section-heading">
+              <div class="step">02</div>
+              <div><h2>Timp lucrat și timp plătit</h2><p>Introdu orele separat, fără a le suprapune.</p></div>
+            </div>
+            <div class="fields work-fields">
+              <label class="field"><span>Ore normale lucrate</span><span class="input-with-suffix"><input id="regular-hours" type="number" min="0" step="1" /><i>ore</i></span><small>Exclud orele de sărbătoare, suplimentare și zilele plătite.</small></label>
+              <label class="field featured-field"><span><em>Timp liber</em> Sărbătoare legală</span><span class="input-with-suffix"><input id="holiday-hours" type="number" min="0" step="1" value="0" /><i>ore</i></span><small>Plată normală; se compensează ulterior cu timp liber plătit.</small></label>
+              <label class="field featured-field"><span><em>Spor</em> Ore suplimentare</span><span class="input-with-suffix"><input id="overtime-hours" type="number" min="0" step="1" value="0" /><i>ore</i></span><small>Plată 175%: tariful normal + spor de 75%.</small></label>
+              <label class="field"><span>Zile CO plătite</span><span class="input-with-suffix"><input id="paid-leave-days" type="number" min="0" step="0.5" value="0" /><i>zile</i></span><small>O zi de concediu de odihnă, la valoarea unei zile standard.</small></label>
+              <label class="field"><span>Alte zile libere plătite</span><span class="input-with-suffix"><input id="paid-days" type="number" min="0" step="0.5" value="0" /><i>zile</i></span><small>Zile libere plătite, distincte de CO.</small></label>
+              <label class="field"><span>Bonus brut</span><span class="input-with-suffix"><input id="bonus-gross" type="number" min="0" step="50" value="0" /><i>lei</i></span><small>Bonus taxabil, inclus în venitul brut.</small></label>
+              <label class="field"><span>Ore weekend</span><span class="input-with-suffix"><input id="weekend-hours" type="number" min="0" step="1" value="0" /><i>ore</i></span><small>Doar sporul de weekend, ca pe fluturaș.</small></label>
+              <label class="field"><span>Spor weekend</span><span class="input-with-suffix"><input id="weekend-rate" type="number" min="0" step="1" value="10" /><i>%</i></span><small>Implicit 10%; poți introduce alt procent.</small></label>
+            </div>
+          </section>
+
+          <section class="form-section medical-section">
+            <div class="section-heading medical-heading">
+              <div class="step">03</div>
+              <div><h2>Concediu medical</h2><p>Calcul de indemnizație pentru incapacitate temporară de muncă.</p></div>
+              <button class="text-button" type="button" id="toggle-medical" aria-expanded="false">Arată formula <span>↓</span></button>
+            </div>
+            <div class="medical-formula" id="medical-formula" hidden>
+              <p><b>Baza zilnică</b> = venituri brute eligibile în ultimele 6 luni ÷ zile de stagiu de cotizare.</p>
+              <p><b>Indemnizație brută</b> = baza zilnică × zile indemnizabile × procentul aplicabil.</p>
+            </div>
+            <div class="fields medical-fields">
+              <label class="field"><span>Zile CM cu indemnizație</span><span class="input-with-suffix"><input id="medical-days" type="number" min="0" step="1" value="0" /><i>zile</i></span><small>Dacă fluturașul arată CM, dar suma este 0 lei, lasă acest câmp la 0.</small></label>
+              <label class="field"><span>Tip indemnizație</span><select id="medical-type"><option value="ordinary">Boală obișnuită (auto)</option><option value="55">Boală obișnuită · 55%</option><option value="65">Boală obișnuită · 65%</option><option value="75">Boală obișnuită · 75%</option><option value="85">Alt tip · 85%</option><option value="100">Alt tip · 100%</option><option value="custom">Procent personalizat</option></select><small id="medical-rate-note">55% pentru 1–7 zile, 65% pentru 8–14, 75% de la 15 zile.</small></label>
+              <label class="field"><span>Media veniturilor brute, ultimele 6 luni</span><span class="input-with-suffix"><input id="medical-average-income" type="number" min="0" step="50" /><i>lei</i></span><small>Media lunară reală; calculatorul o înmulțește cu 6 pentru baza de referință.</small></label>
+              <label class="field"><span>Zile de stagiu, ultimele 6 luni</span><span class="input-with-suffix"><input id="medical-reference-days" type="number" min="1" step="1" /><i>zile</i></span><small>Numărul real de zile de cotizare din baza de calcul.</small></label>
+              <label class="field custom-rate-field" id="custom-rate-wrap" hidden><span>Procent personalizat</span><span class="input-with-suffix"><input id="custom-rate" type="number" min="0" max="100" step="1" value="75" /><i>%</i></span></label>
+            </div>
+            <div class="medical-output"><div><span>Indemnizație medicală brută</span><strong id="medical-gross">0 lei</strong></div><div><span>Procent folosit</span><strong id="medical-rate">—</strong></div><div><span>Bază zilnică</span><strong id="medical-daily-base">0 lei</strong></div></div>
+          </section>
+
+          <section class="form-section adjustments-section">
+            <div class="section-heading"><div class="step">04</div><div><h2>Personalizare fiscală</h2><p>Opțional — completează doar dacă se aplică situației tale.</p></div></div>
+            <div class="fields two-cols">
+              <label class="field"><span>Deducere personală lunară</span><span class="input-with-suffix"><input id="personal-deduction" type="number" min="0" step="1" value="0" /><i>lei</i></span><small>0 dacă nu ai o deducere confirmată de angajator.</small></label>
+              <label class="field"><span>Beneficii neimpozabile</span><span class="input-with-suffix"><input id="non-taxable-benefits" type="number" min="0" step="1" value="0" /><i>lei</i></span><small>Hrană, abonament medical și sport - afișate separat, ca pe fluturaș.</small></label>
+              <label class="field"><span>Avans salarial</span><span class="input-with-suffix"><input id="salary-advance" type="number" min="0" step="50" value="0" /><i>lei</i></span><small>Se scade pentru a afișa restul de plată.</small></label>
+              <div class="medical-toggles"><label class="toggle-field"><input id="medical-cass" type="checkbox" checked /><span class="toggle-track" aria-hidden="true"><i></i></span><span><b>Aplică CASS la CM</b><small>Activ pentru indemnizațiile supuse CASS.</small></span></label><label class="toggle-field"><input id="medical-cas" type="checkbox" checked /><span class="toggle-track" aria-hidden="true"><i></i></span><span><b>Aplică CAS la CM</b><small>Activ pentru a urmări rândul „CAS CM” din fluturaș.</small></span></label></div>
+            </div>
+          </section>
+        </form>
+
+        <aside class="summary" aria-label="Centralizator calcul">
+          <div class="summary-top">
+            <p class="eyebrow">Centralizator</p>
+            <h2>Unde ajung banii</h2>
+            <span class="month-chip" id="summary-month">—</span>
+          </div>
+          <div class="summary-block earnings"><p>Venituri brute</p><div class="line-item"><span>Normă + zile plătite</span><b id="sum-regular">0 lei</b></div><div class="line-item"><span>Sărbătoare legală</span><b id="sum-holiday">0 lei</b></div><div class="line-item"><span>Ore suplimentare</span><b id="sum-overtime">0 lei</b></div><div class="line-item"><span>Spor weekend</span><b id="sum-weekend">0 lei</b></div><div class="line-item"><span>Bonus brut</span><b id="sum-bonus">0 lei</b></div><div class="line-item"><span>Concediu medical</span><b id="sum-medical">0 lei</b></div><div class="total-line"><span>Total brut</span><b id="sum-gross">0 lei</b></div></div>
+          <div class="summary-block deductions"><p>Contribuții și impozit</p><div class="line-item"><span>CAS <small>25%</small></span><b id="sum-cas">− 0 lei</b></div><div class="line-item"><span>CASS <small>10%</small></span><b id="sum-cass">− 0 lei</b></div><div class="line-item"><span>Impozit pe venit <small>10%</small></span><b id="sum-tax">− 0 lei</b></div><div class="total-line"><span>Total rețineri</span><b id="sum-deductions">− 0 lei</b></div></div>
+          <div class="summary-block payout"><p>Plată efectivă</p><div class="line-item"><span>Net înainte de avans</span><b id="sum-net-before-benefits">0 lei</b></div><div class="line-item"><span>Beneficii în afara brutului</span><b id="sum-benefits">0 lei</b></div><div class="line-item"><span>Avans salarial</span><b id="sum-advance">− 0 lei</b></div></div>
+          <div class="take-home"><span>Rest de plată</span><strong id="summary-net">0 lei</strong><p id="net-percentage">0% din brutul calculat</p></div>
+          <div class="assumption-box"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8v4m0 4h.01M10.3 3.85 2.6 17.2A2.1 2.1 0 0 0 4.42 20.3h15.16a2.1 2.1 0 0 0 1.82-3.1L13.7 3.85a1.97 1.97 0 0 0-3.4 0Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg><p>Estimare orientativă. Nu include beneficii, scutiri, popriri sau particularități de contract. Verifică fluturașul cu angajatorul / contabilul.</p></div>
+        </aside>
+      </div>
+
+      <section class="guide" aria-labelledby="guide-title">
+        <div class="guide-intro"><p class="eyebrow">Ghid rapid</p><h2 id="guide-title">Cum completezi calculatorul</h2><p>Introdu valorile din fluturaș pe rânduri separate. Rezultatul se actualizează imediat.</p></div>
+        <div class="guide-list">
+          <article><span>1</span><div><b>Alege luna corectă</b><p>Pentru comparația cu un fluturaș vechi, selectează exact luna lui. Numărul de zile și ore standard se schimbă automat.</p></div></article>
+          <article><span>2</span><div><b>Nu suprapune orele</b><p>„Ore normale” exclude orele de sărbătoare, suplimentare, CO și zilele libere plătite. CO și celelalte zile plătite se introduc separat.</p></div></article>
+          <article><span>3</span><div><b>Sărbătoare legală</b><p>În acest calculator este plătită la tarif normal și compensată ulterior cu timp liber plătit, după modelul fluturașilor tăi.</p></div></article>
+          <article><span>4</span><div><b>Concediu medical</b><p>Completează doar zilele pentru care apare indemnizație. Media brută și zilele de stagiu dau baza zilnică; dacă CM are 0 lei pe fluturaș, lasă zilele la 0.</p></div></article>
+          <article><span>5</span><div><b>Net sau rest de plată?</b><p>Netul este suma după CAS, CASS și impozit. Restul de plată scade și avansul. Beneficiile neimpozabile sunt afișate separat și nu reduc netul cash.</p></div></article>
+        </div>
+      </section>
+
+      <section class="notes">
+        <div><p class="eyebrow">Ipoteze în calculator</p><h2>Clar despre regulile folosite.</h2></div>
+        <div class="notes-grid">
+          <article><b>Contribuții standard</b><p>CAS 25%, CASS 10% și impozit pe venit 10% după contribuții și deducere declarată. Pentru CM, contribuțiile se pot activa separat.</p></article>
+          <article><b>Munca în zile libere</b><p>Sărbătoarea legală este plătită la tariful normal și compensată cu timp liber; orele suplimentare sunt la 175%. Ai și spor de weekend configurabil, preluat din structura fluturașilor.</p></article>
+          <article><b>Concediu medical</b><p>Pentru boală obișnuită, aplicația alege 55%, 65% sau 75%. Introdu media reală a veniturilor brute pentru perioada de referință.</p></article>
+        </div>
+        <p class="legal-sources">Repere: <a href="https://legislatie.just.ro/Public/DetaliiDocument/171282" target="_blank" rel="noreferrer">Codul fiscal</a>, <a href="https://legislatie.just.ro/Public/DetaliiDocument/41634" target="_blank" rel="noreferrer">Codul muncii</a>, <a href="https://legislatie.just.ro/Public/DetaliiDocument/62099" target="_blank" rel="noreferrer">OUG nr. 158/2005</a>. Reglementările și excepțiile se pot actualiza.</p>
+      </section>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>
