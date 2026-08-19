@@ -7,7 +7,7 @@
 
   const fields = [
     'month', 'gross-base', 'regular-hours', 'holiday-hours', 'overtime-hours',
-    'paid-leave-days', 'paid-days', 'bonus-gross', 'weekend-hours', 'weekend-rate',
+    'paid-leave-days', 'paid-days', 'bonus-gross', 'weekend-hours', 'weekend-rate', 'night-hours', 'night-rate',
     'medical-days', 'medical-type', 'medical-average-income', 'medical-reference-days',
     'custom-rate', 'personal-deduction', 'non-taxable-benefits', 'salary-advance',
     'medical-cass', 'medical-cas'
@@ -107,6 +107,7 @@
     const holidayGross = value('holiday-hours') * hourlyRate;
     const overtimeGross = value('overtime-hours') * hourlyRate * 1.75;
     const weekendGross = value('weekend-hours') * hourlyRate * (value('weekend-rate') / 100);
+    const nightGross = value('night-hours') * hourlyRate * (value('night-rate') / 100);
     const bonusGross = value('bonus-gross');
 
     const medicalDays = value('medical-days');
@@ -114,7 +115,7 @@
     const dailyMedicalBase = referenceDays > 0 ? (value('medical-average-income') * 6) / referenceDays : 0;
     const rate = medicalRate(medicalDays);
     const medicalGross = dailyMedicalBase * medicalDays * rate / 100;
-    const employmentGross = regularGross + paidDaysGross + holidayGross + overtimeGross + weekendGross + bonusGross;
+    const employmentGross = regularGross + paidDaysGross + holidayGross + overtimeGross + weekendGross + nightGross + bonusGross;
     const gross = employmentGross + medicalGross;
 
     const cas = employmentGross * 0.25 + ($('medical-cas').checked ? medicalGross * 0.25 : 0);
@@ -138,6 +139,7 @@
     write('sum-holiday', money(holidayGross));
     write('sum-overtime', money(overtimeGross));
     write('sum-weekend', money(weekendGross));
+    write('sum-night', money(nightGross));
     write('sum-bonus', money(bonusGross));
     write('sum-medical', money(medicalGross));
     write('sum-gross', money(gross));
